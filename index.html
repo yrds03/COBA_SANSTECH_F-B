@@ -3,7 +3,7 @@
 <head>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>CL FAMILI_ER CLOUD POS</title>
+  <title>SANSTECH CLOUD POS</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -36,7 +36,7 @@
 
 <div id="login-screen" style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
   <div class="text-center mb-4" style="color: white;">
-    <h1 style="font-weight: 900; letter-spacing: 3px; font-size:2.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.5);"><i class="fas fa-utensils text-warning"></i> CL FAMILI_ER</h1>
+    <h1 style="font-weight: 900; letter-spacing: 3px; font-size:2.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.5);"><i class="fas fa-utensils text-warning"></i> CL _ER</h1>
     <p style="color: #94A3B8; font-size:1.1rem;">Food & Beverage Native Cloud POS</p>
   </div>
   <div style="background:white; padding:30px; border-radius:16px; width:90%; max-width:400px; text-align:center; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
@@ -50,7 +50,7 @@
 
 <div id="main-app" style="display:none; flex-direction:column; min-height:100vh; background: var(--bg);">
   <div class="header">
-    <h4 class="m-0 fw-bold fs-5"><i class="fas fa-store text-warning me-2"></i> CL FAMILI_ER <span id="ui-role" class="badge bg-secondary fs-6 ms-1">ROLE</span></h4>
+    <h4 class="m-0 fw-bold fs-5"><i class="fas fa-store text-warning me-2"></i> SANSTECH <span id="ui-role" class="badge bg-secondary fs-6 ms-1">ROLE</span></h4>
     <div>
       <button id="btn-bt" class="btn btn-info btn-sm fw-bold px-3 py-2 me-1 shadow-sm" onclick="hubungkanBluetoothNative()"><i class="fab fa-bluetooth"></i> KONEK BT</button>
       <button class="btn btn-danger btn-sm fw-bold px-3 py-2 shadow-sm" onclick="logoutAman()"><i class="fas fa-sign-out-alt"></i> KELUAR</button>
@@ -65,7 +65,7 @@
 /* ==================================================================== */
 /* ENGINE API BRIDGE CORING BYPASS PREFLIGHT FLIGHT                     */
 /* ==================================================================== */
-var API_URL = "https://script.google.com/macros/s/AKfycbw8K8hbmQH5EOKPMiu1xk1VYizNP91hs9GUhmXBKaDkhYu_y8FIl6ClQtwEEQA6GR5DXA/exec"; // <--- JANGAN LUPA MASUKKAN URL GOOGLE SCRIPT DI SINI!
+var API_URL = "https://script.google.com/macros/s/AKfycby9GOsHQiSqkzgfr_ZI3BYIvmCh1sTtPqDKe7q53lovFv5gFcEYLWs2tfxfU9QLwYebLg/exec"; // <--- JANGAN LUPA MASUKKAN URL GOOGLE SCRIPT DI SINI!
 
 async function requestAPI(action, payload = {}) {
   try {
@@ -303,7 +303,7 @@ function tampilkanOpsiSelesai(idOrd, mj, nm, tgl, wkt, mt, tt, kasir, cartArr, w
     else if (result.isDenied) {
       if(waNum) {
         var fixWa = waNum.startsWith('0') ? '62' + waNum.substring(1) : waNum;
-        var teksWa = "Halo " + nm + ",\nTerima kasih atas kunjungannya di CL FAMILI_ER Pemancingan & Resto.\n\nID Order: " + idOrd + "\nNo Meja: " + mj + "\nTotal Pembayaran: " + toRp(tt);
+        var teksWa = "Halo " + nm + ",\nTerima kasih atas kunjungannya di SANSTECH.\n\nID Order: " + idOrd + "\nNo Meja: " + mj + "\nTotal Pembayaran: " + toRp(tt);
         window.open('https://wa.me/' + fixWa + '?text=' + encodeURIComponent(teksWa), '_blank');
       } else { alert("Nomor WA tidak diisi."); }
       setTimeout(function() { tampilkanOpsiSelesai(idOrd, mj, nm, tgl, wkt, mt, tt, kasir, cartArr, waNum, discPct, discRp, pajakRp); }, 1000);
@@ -327,7 +327,7 @@ function cetakNota(idOrd, meja, nama, tgl, wkt, metode, totalFinal, kasir, itemA
   // JIKA NATIVE BLUETOOTH JALAN
   if(btCharacteristic != null) {
     // 1. Kertas Customer
-    var rawText = "CL FAMILI_ER\nPEMANCINGAN, CAFE & RESTO\nOrder: " + idOrd + "\n--------------------------------\n";
+    var rawText = "SANTECH\nWARMINDO\nOrder: " + idOrd + "\n--------------------------------\n";
     rawText += "Tgl : " + tgl + " " + wkt + "\nMeja: " + meja + " - " + nama + "\nKsr : " + kasir + "\n--------------------------------\n";
     itemArr.forEach(c => { subtotalAwal += c.subtotal; rawText += c.nama + "\n" + c.qty + " x " + c.harga.toLocaleString('id-ID') + " = " + c.subtotal.toLocaleString('id-ID') + "\n"; });
     rawText += "--------------------------------\nSubtotal   : " + subtotalAwal.toLocaleString('id-ID') + "\n";
@@ -356,7 +356,7 @@ function cetakNota(idOrd, meja, nama, tgl, wkt, metode, totalFinal, kasir, itemA
 
   // JIKA PAKAI RAWBT (HTML PRINT)
   // 1. Kertas Customer
-  var htmlUtama = '<div class="text-center fw-bold" style="font-size:15px;">CL FAMILI_ER</div><div class="text-center" style="font-size:9px;">PEMANCINGAN, CAFE & RESTO</div><div class="text-center" style="font-size:8px;">Jl. Gatot Subroto No.1 Keturen, Tegal</div><div class="text-center">Order: '+idOrd+'</div><div class="dashed-line"></div><div>Tgl : '+tgl+' '+wkt+'</div><div>Meja: '+meja+' - '+nama+'</div><div>Ksr : '+kasir+' ('+metode+')</div><div class="dashed-line"></div>';
+  var htmlUtama = '<div class="text-center fw-bold" style="font-size:15px;">SANSTECH</div><div class="text-center" style="font-size:9px;">PEMANCINGAN, CAFE & RESTO</div><div class="text-center" style="font-size:8px;">Jl. Gatot Subroto No.1 Keturen, Tegal</div><div class="text-center">Order: '+idOrd+'</div><div class="dashed-line"></div><div>Tgl : '+tgl+' '+wkt+'</div><div>Meja: '+meja+' - '+nama+'</div><div>Ksr : '+kasir+' ('+metode+')</div><div class="dashed-line"></div>';
   itemArr.forEach(c => { subtotalAwal += c.subtotal; htmlUtama += '<div>'+c.nama+'</div><div style="display:flex; justify-content:space-between;"><span>'+c.qty+' x '+c.harga.toLocaleString('id-ID')+'</span><span>'+c.subtotal.toLocaleString('id-ID')+'</span></div>'; });
   htmlUtama += '<div class="dashed-line"></div><div style="display:flex; justify-content:space-between;"><span>Subtotal Murni</span><span>'+subtotalAwal.toLocaleString('id-ID')+'</span></div>';
   if(discPct > 0) htmlUtama += '<div style="display:flex; justify-content:space-between; color:black;"><span>Diskon Toko ('+discPct+'%)</span><span>-'+discRp.toLocaleString('id-ID')+'</span></div>';
