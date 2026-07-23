@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cl-familier-v1';
+const CACHE_NAME = 'SANSTECH-v1';
 const assets = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
