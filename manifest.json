@@ -1,0 +1,17 @@
+{
+  "name": "CL FAMILI_ER CLOUD POS",
+  "short_name": "CL Famili_er",
+  "description": "Sistem Aplikasi Kasir & KDS Pemancingan & Resto CL Famili_er Tegal",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1E293B",
+  "theme_color": "#F59E0B",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
