@@ -172,7 +172,7 @@ function routeLayarByRole() {
 }
 
 /* ==================================================================== */
-/* FITUR HOLD BILL (SIMPAN SEMENTARA DI LOKAL HP KASIR)                 */
+/* FITUR HOLD BILL (PENDING BILL)                                       */
 /* ==================================================================== */
 function simpanHoldBill() {
   var mj = document.getElementById('v_meja').value;
@@ -195,12 +195,12 @@ function simpanHoldBill() {
   document.getElementById('v_wa').value = ''; document.getElementById('v_diskon').value = '0';
   hitungTotalKasir();
 
-  Swal.fire({title: 'Tersimpan!', text: 'Pesanan Meja '+mj+' berhasil disimpan sementara.', icon: 'success', timer: 1500, showConfirmButton: false});
+  Swal.fire({title: 'Tersimpan!', text: 'Pesanan Meja '+mj+' berhasil dipending.', icon: 'success', timer: 1500, showConfirmButton: false});
 }
 
 function bukaHoldBill() {
   var holdData = JSON.parse(localStorage.getItem('fb_held_bills')) || [];
-  if(holdData.length === 0) return Swal.fire('Info', 'Belum ada pesanan yang di-hold.', 'info');
+  if(holdData.length === 0) return Swal.fire('Info', 'Belum ada pendingan bill.', 'info');
 
   var html = '<div style="max-height:50vh; overflow-y:auto; text-align:left;">';
   holdData.forEach(function(h) {
@@ -209,17 +209,17 @@ function bukaHoldBill() {
       html += '<div class="d-flex justify-content-between mb-1"><b>Meja: ' + h.meja + ' (' + h.nama + ')</b><span class="badge bg-secondary">' + h.waktu + '</span></div>';
       html += '<div style="font-size:0.85rem;" class="mb-2">Total: ' + totalItem + ' Item Tersimpan</div>';
       html += '<div class="d-flex gap-2">';
-      html += '<button class="btn btn-sm btn-success flex-grow-1 fw-bold" onclick="loadHoldBill(\'' + h.id + '\')"><i class="fas fa-folder-open"></i> Buka & Lanjutkan</button>';
+      html += '<button class="btn btn-sm btn-success flex-grow-1 fw-bold" onclick="loadHoldBill(\'' + h.id + '\')"><i class="fas fa-folder-open"></i> Lanjutkan</button>';
       html += '<button class="btn btn-sm btn-danger fw-bold" onclick="hapusHoldBill(\'' + h.id + '\')"><i class="fas fa-trash"></i></button>';
       html += '</div></div></div>';
   });
   html += '</div>';
 
-  Swal.fire({ title: 'Daftar Tagihan Tertunda', html: html, showConfirmButton: true, confirmButtonText: 'Tutup' });
+  Swal.fire({ title: 'Daftar Pendingan Bill', html: html, showConfirmButton: true, confirmButtonText: 'Tutup' });
 }
 
 function loadHoldBill(id) {
-  if(cart.length > 0) return Swal.fire('Peringatan', 'Harap Selesaikan atau Hold dulu pesanan yang sedang aktif di layar Kasir!', 'warning');
+  if(cart.length > 0) return Swal.fire('Peringatan', 'Harap Selesaikan atau Pending dulu pesanan yang sedang aktif di layar Kasir!', 'warning');
   
   var holdData = JSON.parse(localStorage.getItem('fb_held_bills')) || [];
   var selected = holdData.find(h => h.id === id);
@@ -237,7 +237,7 @@ function loadHoldBill(id) {
 }
 
 function hapusHoldBill(id) {
-  Swal.fire({title:'Hapus Hold Bill ini?', text: 'Data pesanan yang dihapus tidak bisa dikembalikan.', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33'}).then((r) => {
+  Swal.fire({title:'Hapus Pendingan ini?', text: 'Data pesanan yang dihapus tidak bisa dikembalikan.', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33'}).then((r) => {
       if(r.isConfirmed) {
           var holdData = JSON.parse(localStorage.getItem('fb_held_bills')) || [];
           holdData = holdData.filter(h => h.id !== id);
@@ -320,7 +320,7 @@ function searchMenuKasir() {
 }
 
 function renderKasir() {
-  var html = '<div class="row g-3"><div class="col-lg-7 col-md-12"><div class="d-flex flex-wrap gap-2 mb-3 align-items-center" id="kasir-tabs"><button class="btn-tab active flex-grow-1" onclick="filterMenuKasir(\'SEMUA\', this)">SEMUA</button><button class="btn-tab flex-grow-1" onclick="filterMenuKasir(\'MAKANAN\', this)">MAKANAN</button><button class="btn-tab flex-grow-1" onclick="filterMenuKasir(\'MINUMAN\', this)">MINUMAN</button><input type="text" id="v_search_menu" class="form-control border-primary flex-grow-1" style="min-width:140px;" placeholder="🔍 Cari menu..." onkeyup="searchMenuKasir()"><button class="btn btn-primary fw-bold" onclick="modalTambahMenu()" title="Tambah Menu"><i class="fas fa-plus"></i></button><button class="btn btn-secondary fw-bold" onclick="modalKelolaMenu()" title="Setting Menu"><i class="fas fa-cog"></i></button><button class="btn btn-info fw-bold text-white" onclick="bukaHoldBill()" title="BUKA PENDINGAN BILL"><i class="fas fa-clock"></i> BUKA PENDINGAN BILL</button><button class="btn btn-warning fw-bold text-dark" onclick="modalCetakUlangAdmin()" title="Riwayat & Cetak Ulang Nota"><i class="fas fa-print"></i></button></div><div id="kasir-menu-grid" class="pos-grid" style="max-height: 60vh; overflow-y: auto; padding-right: 5px;"></div></div><div class="col-lg-5 col-md-12"><div class="cart-area d-flex flex-column"><h5 class="fw-bold text-center border-bottom pb-2">KERANJANG MEJA</h5><div class="row g-2 mb-2"><div class="col-6"><input type="text" id="v_meja" class="form-control fw-bold border-primary" placeholder="No Meja"></div><div class="col-6"><input type="text" id="v_nama" class="form-control fw-bold" placeholder="Nama Pelanggan"></div><div class="col-12"><input type="number" id="v_wa" class="form-control border-success" placeholder="No WA Pelanggan (Cari/Input)" list="list-wa" onchange="autoFillNama()" onkeyup="autoFillNama()"><datalist id="list-wa"></datalist></div></div><div id="cart-list" style="max-height: 30vh; overflow-y:auto; margin-bottom:10px;"></div><select id="v_diskon" class="form-control fw-bold mb-2 py-2 text-center text-danger" style="border: 2px solid red;" onchange="hitungTotalKasir()"><option value="0">TIDAK ADA DISKON (0%)</option><option value="5">POTONGAN DISKON 5%</option><option value="10">POTONGAN DISKON 10%</option><option value="15">POTONGAN DISKON 15%</option><option value="20">POTONGAN DISKON 20%</option><option value="25">POTONGAN DISKON 25%</option></select><select id="v_metode" class="form-control fw-bold mb-2 py-2 text-center text-primary" style="font-size:1rem; border: 2px solid blue;"><option value="CASH">CASH (TUNAI)</option><option value="QRIS">QRIS SINKRON</option><option value="TRANSFER">TRANSFER BANK</option><option value="GOFOOD">DELIVERY GOFOOD</option><option value="GRABFOOD">DELIVERY GRABFOOD</option><option value="SHOPEEFOOD">DELIVERY SHOPEE FOOD</option><option value="MAXIMFOOD">DELIVERY MAXIM FOOD</option></select><div class="bg-dark text-white rounded p-2 mb-2"><div class="d-flex justify-content-between" style="font-size:0.8rem;"><span>Subtotal Murni:</span><span id="ui_subtotal">Rp 0</span></div><div class="d-flex justify-content-between text-warning" style="font-size:0.8rem;"><span>Diskon Toko:</span><span id="ui_diskon">-Rp 0</span></div><div class="d-flex justify-content-between text-info border-bottom pb-1 mb-1" style="font-size:0.8rem;"><span>Pajak PB1 & Service (10%):</span><span id="ui_pajak">+Rp 0</span></div><div class="text-center mt-1" style="font-size:0.8rem; letter-spacing:1px;">TOTAL AKHIR BILL</div><div id="v_total" class="fw-bold text-warning fs-3 text-center">Rp 0</div></div><button class="btn btn-secondary w-100 py-2 mb-2 fw-bold shadow-sm" onclick="simpanHoldBill()"><i class="fas fa-pause-circle me-2"></i>SIMPAN SEMENTARA (HOLD BILL)</button><button class="btn btn-success w-100 py-3 fw-bold fs-5 shadow" onclick="checkoutOrder()"><i class="fas fa-check-circle me-2"></i>BAYAR & CETAK NOTA</button></div></div></div>';
+  var html = '<div class="row g-3"><div class="col-lg-7 col-md-12"><div class="d-flex flex-wrap gap-2 mb-3 align-items-center" id="kasir-tabs"><button class="btn-tab active flex-grow-1" onclick="filterMenuKasir(\'SEMUA\', this)">SEMUA</button><button class="btn-tab flex-grow-1" onclick="filterMenuKasir(\'MAKANAN\', this)">MAKANAN</button><button class="btn-tab flex-grow-1" onclick="filterMenuKasir(\'MINUMAN\', this)">MINUMAN</button><input type="text" id="v_search_menu" class="form-control border-primary flex-grow-1" style="min-width:140px;" placeholder="🔍 Cari menu..." onkeyup="searchMenuKasir()"><button class="btn btn-primary fw-bold" onclick="modalTambahMenu()" title="Tambah Menu"><i class="fas fa-plus"></i></button><button class="btn btn-secondary fw-bold" onclick="modalKelolaMenu()" title="Setting Menu"><i class="fas fa-cog"></i></button><button class="btn btn-info fw-bold text-white" onclick="bukaHoldBill()" title="BUKA PENDINGAN BILL"><i class="fas fa-clock"></i> BUKA PENDINGAN BILL</button><button class="btn btn-warning fw-bold text-dark" onclick="modalCetakUlangAdmin()" title="Riwayat & Cetak Ulang Nota"><i class="fas fa-print"></i></button></div><div id="kasir-menu-grid" class="pos-grid" style="max-height: 60vh; overflow-y: auto; padding-right: 5px;"></div></div><div class="col-lg-5 col-md-12"><div class="cart-area d-flex flex-column"><h5 class="fw-bold text-center border-bottom pb-2">KERANJANG MEJA</h5><div class="row g-2 mb-2"><div class="col-6"><input type="text" id="v_meja" class="form-control fw-bold border-primary" placeholder="No Meja"></div><div class="col-6"><input type="text" id="v_nama" class="form-control fw-bold" placeholder="Nama Pelanggan"></div><div class="col-12"><input type="number" id="v_wa" class="form-control border-success" placeholder="No WA Pelanggan (Cari/Input)" list="list-wa" onchange="autoFillNama()" onkeyup="autoFillNama()"><datalist id="list-wa"></datalist></div></div><div id="cart-list" style="max-height: 30vh; overflow-y:auto; margin-bottom:10px;"></div><select id="v_diskon" class="form-control fw-bold mb-2 py-2 text-center text-danger" style="border: 2px solid red;" onchange="hitungTotalKasir()"><option value="0">TIDAK ADA DISKON (0%)</option><option value="5">POTONGAN DISKON 5%</option><option value="10">POTONGAN DISKON 10%</option><option value="15">POTONGAN DISKON 15%</option><option value="20">POTONGAN DISKON 20%</option><option value="25">POTONGAN DISKON 25%</option></select><select id="v_metode" class="form-control fw-bold mb-2 py-2 text-center text-primary" style="font-size:1rem; border: 2px solid blue;"><option value="CASH">CASH (TUNAI)</option><option value="QRIS">QRIS SINKRON</option><option value="TRANSFER">TRANSFER BANK</option><option value="GOFOOD">DELIVERY GOFOOD</option><option value="GRABFOOD">DELIVERY GRABFOOD</option><option value="SHOPEEFOOD">DELIVERY SHOPEE FOOD</option><option value="MAXIMFOOD">DELIVERY MAXIM FOOD</option></select><div class="bg-dark text-white rounded p-2 mb-2"><div class="d-flex justify-content-between" style="font-size:0.8rem;"><span>Subtotal Murni:</span><span id="ui_subtotal">Rp 0</span></div><div class="d-flex justify-content-between text-warning" style="font-size:0.8rem;"><span>Diskon Toko:</span><span id="ui_diskon">-Rp 0</span></div><div class="d-flex justify-content-between text-info border-bottom pb-1 mb-1" style="font-size:0.8rem;"><span>Pajak PB1 & Service (10%):</span><span id="ui_pajak">+Rp 0</span></div><div class="text-center mt-1" style="font-size:0.8rem; letter-spacing:1px;">TOTAL AKHIR BILL</div><div id="v_total" class="fw-bold text-warning fs-3 text-center">Rp 0</div></div><button class="btn btn-secondary w-100 py-2 mb-2 fw-bold shadow-sm" onclick="simpanHoldBill()"><i class="fas fa-pause-circle me-2"></i>SIMPAN PENDINGAN BILL</button><button class="btn btn-success w-100 py-3 fw-bold fs-5 shadow" onclick="checkoutOrder()"><i class="fas fa-check-circle me-2"></i>BAYAR & CETAK NOTA</button></div></div></div>';
   document.getElementById('app-content').innerHTML = html; filterMenuKasir('SEMUA', document.querySelector('.btn-tab.active'));
 }
 
@@ -365,7 +365,7 @@ async function checkoutOrder() {
   var res = await requestAPI("simpanPesanan", { meja: mj, nama: nm, wa: wa, metode: mt, grandTotal: grandTotal, kasir: sessionInfo.nama, cart: finalCart, discPct: diskonPersen, discRp: diskonRp, taxRp: pajakRp });
   Swal.close();
   
-  if(res.status === 'success') { tampilkanOpsiSelesai(res.idOrder, mj, nm, res.tgl, wkt, mt, grandTotal, sessionInfo.nama, finalCart, wa, diskonPersen, diskonRp, pajakRp); } else { Swal.fire('Error Database', res.msg, 'error'); }
+  if(res.status === 'success') { tampilkanOpsiSelesai(res.idOrder, mj, nm, res.tgl, res.wkt, mt, grandTotal, sessionInfo.nama, finalCart, wa, diskonPersen, diskonRp, pajakRp); } else { Swal.fire('Error Database', res.msg, 'error'); }
 }
 
 function tampilkanOpsiSelesai(idOrd, mj, nm, tgl, wkt, mt, tt, kasir, cartArr, waNum, discPct, discRp, pajakRp) {
@@ -515,7 +515,6 @@ async function cariRiwayatAdmin() {
       var h = ''; if(res.data.length === 0) h = '<div class="alert alert-warning text-center">Tidak ada transaksi ditemukan.</div>';
       res.data.forEach(function(d) {
          var strItems = JSON.stringify(d.items).replace(/"/g, '&quot;');
-         // PENAMBAHAN: Label Transaksi by (Metode)
          h += '<div class="card mb-2 border-primary"><div class="card-body py-2 px-3"><div class="d-flex justify-content-between"><b>'+d.idOrder+'</b><span class="text-muted">'+d.tgl+' '+d.wkt+'</span></div><div style="font-size:0.9rem;">Meja: '+d.meja+' ('+d.nama+')<br>Total Laci: <b>'+toRp(d.total)+'</b><br><span class="badge bg-info text-dark mt-1">Transaksi via: '+d.metode+'</span></div><button class="btn btn-sm btn-outline-success w-100 mt-2 fw-bold" onclick="cetakNota(\''+d.idOrder+'\',\''+d.meja+'\',\''+d.nama+'\',\''+d.tgl+'\',\''+d.wkt+'\',\''+d.metode+'\','+d.total+',\''+d.kasir+'\', '+strItems+', '+d.discPct+', '+d.discRp+', '+d.taxRp+')"><i class="fas fa-print"></i> Re-Print Nota Kasir</button></div></div>';
       });
       document.getElementById('area-riwayat-admin').innerHTML = h;
@@ -524,9 +523,8 @@ async function cariRiwayatAdmin() {
 
 function downloadCSV() {
    var rows = document.querySelectorAll('#tbl-laporan tr'); if(rows.length === 1 && rows[0].innerText.includes('Pilih parameter')) return alert('Data kosong!');
-   // PERBAIKAN: Format CSV titik koma (;)
-   var csv = "NAMA MENU;KATEGORI;QTY;TOTAL_RUPIAH_KOTOR\n";
-   rows.forEach(r => { var cols = r.querySelectorAll('td'); if(cols.length === 3) { var nk = cols[0].innerText.split("\n"); var nama = nk[0]; var kat = nk.length > 1 ? nk[1] : ""; csv += '"' + nama + '";"' + kat + '";"' + cols[1].innerText + '";"' + cols[2].innerText.replace(/\./g, '') + '"\n'; } });
+   var csv = "NAMA MENU,KATEGORI,QTY,TOTAL_RUPIAH_KOTOR\n";
+   rows.forEach(r => { var cols = r.querySelectorAll('td'); if(cols.length === 3) { var nk = cols[0].innerText.split("\n"); var nama = nk[0]; var kat = nk.length > 1 ? nk[1] : ""; csv += '"' + nama + '","' + kat + '","' + cols[1].innerText + '","' + cols[2].innerText.replace(/\./g, '') + '"\n'; } });
    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); var url = URL.createObjectURL(blob); var link = document.createElement("a"); link.setAttribute("href", url); link.setAttribute("download", "Laporan_Resto_Akuntansi.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
 </script>
