@@ -318,6 +318,37 @@ function renderKasir() {
   document.getElementById('app-content').innerHTML = html; filterMenuKasir('SEMUA', document.querySelector('.btn-tab.active'));
 }
 
+function filterMenuKasir(kat, el) {
+  document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active')); el.classList.add('active');
+  document.getElementById('v_search_menu').value = ""; var gridHTML = "";
+  catalogGlobal.forEach(m => {
+    if(kat === 'SEMUA' || m.kategori === kat) { gridHTML += '<div class="menu-box" onclick="addCart(\''+m.sku+'\', \''+m.nama.replace(/'/g,"\\'")+'\', \''+m.kategori+'\', '+m.harga+')"><div class="menu-box-title">'+m.nama+'</div><div class="menu-box-price">'+toRp(m.harga)+'</div></div>'; }
+  });
+  document.getElementById('kasir-menu-grid').innerHTML = gridHTML;
+}
+
+function addCart(sku, nama, kat, harga) {
+  var ex = cart.find(c => c.sku === sku && !c.note);
+  if(ex) { ex.qty++; ex.subtotal = ex.qty * harga; } else { cart.push({sku:sku, nama:nama, kategori:kat, harga:harga, qty:1, subtotal:harga, note:""}); }
+  renderCart();
+}
+
+function renderCart() {
+  var list = "";
+  cart.forEach((c, i) => {
+    list += '<div class="p-2 mb-2 bg-light rounded border shadow-sm" style="font-size:0.85rem;"><div class="d-flex justify-content-between align-items-center mb-1"><div><b>'+c.qty+'x</b> '+c.nama+'</div><div class="text-end"><b class="text-success">'+toRp(c.subtotal)+'</b> <i class="fas fa-times text-danger ms-2" onclick="cart.splice('+i+',1);renderCart()" style="cursor:pointer;"></i></div></div><input type="text" class="form-control form-control-sm border-warning" style="font-size:0.75rem;" placeholder="Catatan: pedas, goreng, bakar..." value="'+(c.note||'')+'" onchange="cart['+i+'].note=this.value"></div>';
+  });
+  document.getElementById('cart-list').innerHTML = list || '<div class="text-center text-muted mt-3">Keranjang kosong.</div>'; hitungTotalKasir();
+}
+
+function hitungTotalKasir() {
+  var subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0); var discPersen = parseInt(document.getElementById('v_diskon').value) || 0;
+  var discRupiah = subtotal * (discPersen / 100); var setelahDiskon = subtotal - discRupiah; var pajakRp = setelahDiskon * 0.10; var grandTotal = setelahDiskon + pajakRp;
+  document.getElementById('ui_subtotal').innerText = toRp(subtotal); document.getElementById('ui_diskon').innerText = '-' + toRp(discRupiah); document.getElementById('ui_pajak').innerText = '+' + toRp(pajakRp); document.getElementById('v_total').innerText = toRp(grandTotal);
+  document.getElementById('v_total').dataset.val = grandTotal; document.getElementById('v_total').dataset.disc = discPersen; document.getElementById('v_total').dataset.discRp = discRupiah; document.getElementById('v_total').dataset.pajak = pajakRp;
+}
+
+// PERBAIKAN: KODE ANTI-DOBEL KLIK YANG BISA MERESET KEMBALI
 async function checkoutOrder() {
   var mj = document.getElementById('v_meja').value; 
   var nm = document.getElementById('v_nama').value; 
@@ -355,53 +386,6 @@ async function checkoutOrder() {
   } else { 
       Swal.fire('Error Database', res.msg, 'error'); 
   }
-}
-
-function filterMenuKasir(kat, el) {
-  document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active')); el.classList.add('active');
-  document.getElementById('v_search_menu').value = ""; var gridHTML = "";
-  catalogGlobal.forEach(m => {
-    if(kat === 'SEMUA' || m.kategori === kat) { gridHTML += '<div class="menu-box" onclick="addCart(\''+m.sku+'\', \''+m.nama.replace(/'/g,"\\'")+'\', \''+m.kategori+'\', '+m.harga+')"><div class="menu-box-title">'+m.nama+'</div><div class="menu-box-price">'+toRp(m.harga)+'</div></div>'; }
-  });
-  document.getElementById('kasir-menu-grid').innerHTML = gridHTML;
-}
-
-function addCart(sku, nama, kat, harga) {
-  var ex = cart.find(c => c.sku === sku && !c.note);
-  if(ex) { ex.qty++; ex.subtotal = ex.qty * harga; } else { cart.push({sku:sku, nama:nama, kategori:kat, harga:harga, qty:1, subtotal:harga, note:""}); }
-  renderCart();
-}
-
-function renderCart() {
-  var list = "";
-  cart.forEach((c, i) => {
-    list += '<div class="p-2 mb-2 bg-light rounded border shadow-sm" style="font-size:0.85rem;"><div class="d-flex justify-content-between align-items-center mb-1"><div><b>'+c.qty+'x</b> '+c.nama+'</div><div class="text-end"><b class="text-success">'+toRp(c.subtotal)+'</b> <i class="fas fa-times text-danger ms-2" onclick="cart.splice('+i+',1);renderCart()" style="cursor:pointer;"></i></div></div><input type="text" class="form-control form-control-sm border-warning" style="font-size:0.75rem;" placeholder="Catatan: pedas, goreng, bakar..." value="'+(c.note||'')+'" onchange="cart['+i+'].note=this.value"></div>';
-  });
-  document.getElementById('cart-list').innerHTML = list || '<div class="text-center text-muted mt-3">Keranjang kosong.</div>'; hitungTotalKasir();
-}
-
-function hitungTotalKasir() {
-  var subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0); var discPersen = parseInt(document.getElementById('v_diskon').value) || 0;
-  var discRupiah = subtotal * (discPersen / 100); var setelahDiskon = subtotal - discRupiah; var pajakRp = setelahDiskon * 0.10; var grandTotal = setelahDiskon + pajakRp;
-  document.getElementById('ui_subtotal').innerText = toRp(subtotal); document.getElementById('ui_diskon').innerText = '-' + toRp(discRupiah); document.getElementById('ui_pajak').innerText = '+' + toRp(pajakRp); document.getElementById('v_total').innerText = toRp(grandTotal);
-  document.getElementById('v_total').dataset.val = grandTotal; document.getElementById('v_total').dataset.disc = discPersen; document.getElementById('v_total').dataset.discRp = discRupiah; document.getElementById('v_total').dataset.pajak = pajakRp;
-}
-
-async function checkoutOrder(event) {
-  var mj = document.getElementById('v_meja').value; var nm = document.getElementById('v_nama').value; var wa = document.getElementById('v_wa').value;
-  var mt = document.getElementById('v_metode').value; var grandTotal = Number(document.getElementById('v_total').dataset.val) || 0;
-  var diskonPersen = Number(document.getElementById('v_total').dataset.disc) || 0; var diskonRp = Number(document.getElementById('v_total').dataset.discRp) || 0; var pajakRp = Number(document.getElementById('v_total').dataset.pajak) || 0;
-  if(cart.length===0 || !mj || !nm) return Swal.fire('Gagal', 'Lengkapi Nomor Meja dan Nama Pelanggan!', 'warning');
-  
-  event.currentTarget.disabled = true;
-  event.currentTarget.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> MEMPROSES...';
-
-  Swal.fire({ title: 'Menyimpan & Mencetak...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-  var finalCart = cart.map(c => { return { sku: c.sku, nama: c.note ? c.nama + ' (' + c.note.toUpperCase() + ')' : c.nama, kategori: c.kategori, qty: c.qty, harga: c.harga, subtotal: c.subtotal }; });
-  var res = await requestAPI("simpanPesanan", { meja: mj, nama: nm, wa: wa, metode: mt, grandTotal: grandTotal, kasir: sessionInfo.nama, cart: finalCart, discPct: diskonPersen, discRp: diskonRp, taxRp: pajakRp });
-  Swal.close();
-  
-  if(res.status === 'success') { tampilkanOpsiSelesai(res.idOrder, mj, nm, res.tgl, res.wkt, mt, grandTotal, sessionInfo.nama, finalCart, wa, diskonPersen, diskonRp, pajakRp); } else { Swal.fire('Error Database', res.msg, 'error'); }
 }
 
 function tampilkanOpsiSelesai(idOrd, mj, nm, tgl, wkt, mt, tt, kasir, cartArr, waNum, discPct, discRp, pajakRp) {
