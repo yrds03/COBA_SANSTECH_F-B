@@ -416,17 +416,21 @@ function tampilkanOpsiSelesai(idOrd, mj, nm, tgl, wkt, mt, tt, kasir, cartArr, w
 function cetakNota(idOrd, meja, nama, tgl, wkt, metode, totalFinal, kasir, itemArr, discPct, discRp, pajakRp) {
   var subtotalAwal = 0;
   
+  // PEMISAHAN KATEGORI ITEM
   var itemMinuman = itemArr.filter(c => c.kategori === 'MINUMAN');
   var itemMakanan = itemArr.filter(c => c.kategori === 'MAKANAN');
 
+  // JIKA NATIVE BLUETOOTH JALAN
   if(btCharacteristic != null) {
-    var rawText = "SANSTECH\nWARMINDO\nOrder: " + idOrd + "\n--------------------------------\n";
+    // 1. Kertas Customer
+    var rawText = "CL FAMILI_ER\nPEMANCINGAN, CAFE & RESTO\nOrder: " + idOrd + "\n--------------------------------\n";
     rawText += "Tgl : " + tgl + " " + wkt + "\nMeja: " + meja + " - " + nama + "\nKsr : " + kasir + "\n--------------------------------\n";
     itemArr.forEach(c => { subtotalAwal += c.subtotal; rawText += c.nama + "\n" + c.qty + " x " + c.harga.toLocaleString('id-ID') + " = " + c.subtotal.toLocaleString('id-ID') + "\n"; });
     rawText += "--------------------------------\nSubtotal   : " + subtotalAwal.toLocaleString('id-ID') + "\n";
     if(discPct > 0) rawText += "Diskon " + discPct + "% : -" + discRp.toLocaleString('id-ID') + "\n";
     rawText += "Tax & Serv : +" + pajakRp.toLocaleString('id-ID') + "\n--------------------------------\nTOTAL BILL : " + totalFinal.toLocaleString('id-ID') + "\n--------------------------------\nTerima Kasih Atas Kunjungan Anda\n\n";
 
+    // 2. Kertas Bar (Jika ada minuman)
     if(itemMinuman.length > 0) {
         rawText += "--------------------------------\n--- POTONG DI SINI (BAR) ---\n--------------------------------\n";
         rawText += "TIKET BAR (MINUMAN)\nOrder: " + idOrd + "\nMeja: " + meja + " - " + nama + "\nWaktu: " + wkt + "\n--------------------------------\n";
@@ -434,6 +438,7 @@ function cetakNota(idOrd, meja, nama, tgl, wkt, metode, totalFinal, kasir, itemA
         rawText += "\n\n";
     }
 
+    // 3. Kertas Dapur (Jika ada makanan)
     if(itemMakanan.length > 0) {
         rawText += "--------------------------------\n--- POTONG DI SINI (DAPUR) ---\n--------------------------------\n";
         rawText += "TIKET DAPUR (MAKANAN)\nOrder: " + idOrd + "\nMeja: " + meja + " - " + nama + "\nWaktu: " + wkt + "\n--------------------------------\n";
@@ -442,8 +447,9 @@ function cetakNota(idOrd, meja, nama, tgl, wkt, metode, totalFinal, kasir, itemA
     }
 
     cetakNativeText(rawText);
-    return;
+    return; // STOP DI SINI
   }
+
 
   var htmlUtama = '<div class="text-center fw-bold" style="font-size:15px;">SANSTECH</div><div class="text-center" style="font-size:9px;">PEMANCINGAN, CAFE & RESTO</div><div class="text-center" style="font-size:8px;">Jl. Gatot Subroto No.1 Keturen, Tegal</div><div class="text-center">Order: '+idOrd+'</div><div class="dashed-line"></div><div>Tgl : '+tgl+' '+wkt+'</div><div>Meja: '+meja+' - '+nama+'</div><div>Ksr : '+kasir+' ('+metode+')</div><div class="dashed-line"></div>';
   itemArr.forEach(c => { subtotalAwal += c.subtotal; htmlUtama += '<div>'+c.nama+'</div><div style="display:flex; justify-content:space-between;"><span>'+c.qty+' x '+c.harga.toLocaleString('id-ID')+'</span><span>'+c.subtotal.toLocaleString('id-ID')+'</span></div>'; });
