@@ -3,7 +3,7 @@
 <head>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>SANSTECH CLOUD POS</title>
+  <title>CL FAMILI_ER CLOUD POS</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -36,7 +36,7 @@
 
 <div id="login-screen" style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
   <div class="text-center mb-4" style="color: white;">
-    <h1 style="font-weight: 900; letter-spacing: 3px; font-size:2.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.5);"><i class="fas fa-utensils text-warning"></i> SANSTECH</h1>
+    <h1 style="font-weight: 900; letter-spacing: 3px; font-size:2.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.5);"><i class="fas fa-utensils text-warning"></i> CL FAMILI_ER</h1>
     <p style="color: #94A3B8; font-size:1.1rem;">Food & Beverage Native Cloud POS</p>
   </div>
   <div style="background:white; padding:30px; border-radius:16px; width:90%; max-width:400px; text-align:center; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
@@ -50,7 +50,7 @@
 
 <div id="main-app" style="display:none; flex-direction:column; min-height:100vh; background: var(--bg);">
   <div class="header">
-    <h4 class="m-0 fw-bold fs-5"><i class="fas fa-store text-warning me-2"></i> SANSTECH <span id="ui-role" class="badge bg-secondary fs-6 ms-1">ROLE</span></h4>
+    <h4 class="m-0 fw-bold fs-5"><i class="fas fa-store text-warning me-2"></i> CL FAMILI_ER <span id="ui-role" class="badge bg-secondary fs-6 ms-1">ROLE</span></h4>
     <div>
       <button id="btn-bt" class="btn btn-info btn-sm fw-bold px-3 py-2 me-1 shadow-sm" onclick="hubungkanBluetoothNative()"><i class="fab fa-bluetooth"></i> KONEK BT</button>
       <button class="btn btn-danger btn-sm fw-bold px-3 py-2 shadow-sm" onclick="logoutAman()"><i class="fas fa-sign-out-alt"></i> KELUAR</button>
@@ -65,7 +65,7 @@
 /* ==================================================================== */
 /* ENGINE API BRIDGE CORING BYPASS PREFLIGHT FLIGHT                     */
 /* ==================================================================== */
-var API_URL = "https://script.google.com/macros/s/AKfycby9GOsHQiSqkzgfr_ZI3BYIvmCh1sTtPqDKe7q53lovFv5gFcEYLWs2tfxfU9QLwYebLg/exec"; 
+var API_URL = "https://script.google.com/macros/s/AKfycby9GOsHQiSqkzgfr_ZI3BYIvmCh1sTtPqDKe7q53lovFv5gFcEYLWs2tfxfU9QLwYebLg/exec"; // <--- JANGAN LUPA MASUKKAN URL GOOGLE SCRIPT DI SINI!
 
 async function requestAPI(action, payload = {}) {
   try {
@@ -86,6 +86,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 var sessionInfo = { user: "", role: "", nama: "" };
 var catalogGlobal = []; var pelangganGlobal = []; var cart = [];
 
+// PERBAIKAN: Menggunakan localStorage agar sesi Login tidak hilang saat di-refresh
 window.onload = function() {
   try {
     var savedUser = localStorage.getItem('fb_user');
@@ -94,6 +95,7 @@ window.onload = function() {
       document.getElementById('ui-role').innerText = sessionInfo.role;
       document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'flex';
       routeLayarByRole(); 
+      // Indikator BT terputus karena refresh
       document.getElementById('btn-bt').className = 'btn btn-danger btn-sm fw-bold px-3 py-2 me-1 shadow-sm';
       document.getElementById('btn-bt').innerHTML = '<i class="fab fa-bluetooth"></i> BT TERPUTUS';
     }
@@ -112,6 +114,7 @@ async function hubungkanBluetoothNative() {
   try {
     btDevice = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'e7810a71-73ae-499d-8c15-faa9aef0c3f2'] });
     
+    // Deteksi jika Bluetooth terputus mendadak
     btDevice.addEventListener('gattserverdisconnected', function() {
       btCharacteristic = null;
       document.getElementById('btn-bt').className = 'btn btn-danger btn-sm fw-bold px-3 py-2 me-1 shadow-sm';
@@ -122,6 +125,7 @@ async function hubungkanBluetoothNative() {
     var service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb').catch(() => null) || await server.getPrimaryService('e7810a71-73ae-499d-8c15-faa9aef0c3f2');
     btCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb').catch(() => null) || await service.getCharacteristics().then(chars => chars[0]);
     
+    // Ubah UI Tombol jadi Hijau saat sukses
     document.getElementById('btn-bt').className = 'btn btn-success btn-sm fw-bold px-3 py-2 me-1 shadow-sm';
     document.getElementById('btn-bt').innerHTML = '<i class="fab fa-bluetooth"></i> BT KONEK &nbsp;<i class="fas fa-check"></i>';
     Swal.fire('Sukses', 'Printer terhubung lewat Native Web Bluetooth!', 'success');
@@ -138,6 +142,7 @@ async function cetakNativeText(teksNota) {
   return true;
 }
 
+// PERBAIKAN: Menyimpan sesi ke localStorage
 async function verifikasiLoginAman() {
   var u = document.getElementById('log-user').value.trim(); var p = document.getElementById('log-pass').value.trim();
   if(!u || !p) return alert("Wajib diisi!");
@@ -153,6 +158,7 @@ async function verifikasiLoginAman() {
   } else { Swal.fire('Gagal', res.msg, 'error'); }
 }
 
+// PERBAIKAN: Menghapus sesi permanen saat klik Keluar
 function logoutAman() {
   localStorage.clear();
   document.getElementById('main-app').style.display = 'none'; document.getElementById('login-screen').style.display = 'flex';
@@ -314,7 +320,7 @@ function searchMenuKasir() {
 }
 
 function renderKasir() {
-  var html = '<div class="row g-3"><div class="col-lg-7 col-md-12"><div class="d-flex flex-wrap gap-2 mb-3 align-items-center" id="kasir-tabs"><button class="btn-tab active flex-grow-1" onclick="filterMenuKasir(\'SEMUA\', this)">SEMUA</button><button class="btn-tab flex-grow-1" onclick="filterMenuKasir(\'MAKANAN\', this)">MAKANAN</button><button class="btn-tab flex-grow-1" onclick="filterMenuKasir(\'MINUMAN\', this)">MINUMAN</button><input type="text" id="v_search_menu" class="form-control border-primary flex-grow-1" style="min-width:140px;" placeholder="🔍 Cari menu..." onkeyup="searchMenuKasir()"><button class="btn btn-primary fw-bold" onclick="modalTambahMenu()" title="Tambah Menu"><i class="fas fa-plus"></i></button><button class="btn btn-secondary fw-bold" onclick="modalKelolaMenu()" title="Setting Menu"><i class="fas fa-cog"></i></button><button class="btn btn-info fw-bold text-white" onclick="bukaHoldBill()" title="Daftar Tagihan Tertunda"><i class="fas fa-clipboard-list"></i></button><button class="btn btn-warning fw-bold text-dark" onclick="modalCetakUlangAdmin()" title="Riwayat & Cetak Ulang Nota"><i class="fas fa-print"></i></button></div><div id="kasir-menu-grid" class="pos-grid" style="max-height: 60vh; overflow-y: auto; padding-right: 5px;"></div></div><div class="col-lg-5 col-md-12"><div class="cart-area d-flex flex-column"><h5 class="fw-bold text-center border-bottom pb-2">KERANJANG MEJA</h5><div class="row g-2 mb-2"><div class="col-6"><input type="text" id="v_meja" class="form-control fw-bold border-primary" placeholder="No Meja"></div><div class="col-6"><input type="text" id="v_nama" class="form-control fw-bold" placeholder="Nama Pelanggan"></div><div class="col-12"><input type="number" id="v_wa" class="form-control border-success" placeholder="No WA Pelanggan (Cari/Input)" list="list-wa" onchange="autoFillNama()" onkeyup="autoFillNama()"><datalist id="list-wa"></datalist></div></div><div id="cart-list" style="max-height: 25vh; overflow-y:auto; margin-bottom:10px;"></div><select id="v_diskon" class="form-control fw-bold mb-2 py-2 text-center text-danger" style="border: 2px solid red;" onchange="hitungTotalKasir()"><option value="0">TIDAK ADA DISKON (0%)</option><option value="5">POTONGAN DISKON 5%</option><option value="10">POTONGAN DISKON 10%</option><option value="15">POTONGAN DISKON 15%</option><option value="20">POTONGAN DISKON 20%</option><option value="25">POTONGAN DISKON 25%</option></select><select id="v_metode" class="form-control fw-bold mb-2 py-2 text-center text-primary" style="font-size:1rem; border: 2px solid blue;"><option value="CASH">CASH (TUNAI)</option><option value="QRIS">QRIS SINKRON</option><option value="TRANSFER">TRANSFER BANK</option><option value="GOFOOD">DELIVERY GOFOOD</option><option value="GRABFOOD">DELIVERY GRABFOOD</option><option value="SHOPEEFOOD">DELIVERY SHOPEE FOOD</option><option value="MAXIMFOOD">DELIVERY MAXIM FOOD</option></select><div class="bg-dark text-white rounded p-2 mb-2"><div class="d-flex justify-content-between" style="font-size:0.8rem;"><span>Subtotal Murni:</span><span id="ui_subtotal">Rp 0</span></div><div class="d-flex justify-content-between text-warning" style="font-size:0.8rem;"><span>Diskon Toko:</span><span id="ui_diskon">-Rp 0</span></div><div class="d-flex justify-content-between text-info border-bottom pb-1 mb-1" style="font-size:0.8rem;"><span>Pajak PB1 & Service (10%):</span><span id="ui_pajak">+Rp 0</span></div><div class="text-center mt-1" style="font-size:0.8rem; letter-spacing:1px;">TOTAL AKHIR BILL</div><div id="v_total" class="fw-bold text-warning fs-3 text-center">Rp 0</div></div><button class="btn btn-secondary w-100 py-2 mb-2 fw-bold shadow-sm" onclick="simpanHoldBill()"><i class="fas fa-pause-circle me-2"></i>SIMPAN SEMENTARA (HOLD BILL)</button><button id="btn-bayar-utama" class="btn btn-success w-100 py-3 fw-bold fs-5 shadow" onclick="checkoutOrder()"><i class="fas fa-check-circle me-2"></i>BAYAR & CETAK NOTA</button></div></div></div>';
+  var html = '<div class="row g-3"><div class="col-lg-7 col-md-12"><div class="d-flex flex-wrap gap-2 mb-3 align-items-center" id="kasir-tabs"><button class="btn-tab active flex-grow-1" onclick="filterMenuKasir(\'SEMUA\', this)">SEMUA</button><button class="btn-tab flex-grow-1" onclick="filterMenuKasir(\'MAKANAN\', this)">MAKANAN</button><button class="btn-tab flex-grow-1" onclick="filterMenuKasir(\'MINUMAN\', this)">MINUMAN</button><input type="text" id="v_search_menu" class="form-control border-primary flex-grow-1" style="min-width:140px;" placeholder="🔍 Cari menu..." onkeyup="searchMenuKasir()"><button class="btn btn-primary fw-bold" onclick="modalTambahMenu()" title="Tambah Menu"><i class="fas fa-plus"></i></button><button class="btn btn-secondary fw-bold" onclick="modalKelolaMenu()" title="Setting Menu"><i class="fas fa-cog"></i></button><button class="btn btn-info fw-bold text-white" onclick="bukaHoldBill()" title="BUKA PENDINGAN BILL"><i class="fas fa-clock"></i> BUKA PENDINGAN BILL</button><button class="btn btn-warning fw-bold text-dark" onclick="modalCetakUlangAdmin()" title="Riwayat & Cetak Ulang Nota"><i class="fas fa-print"></i></button></div><div id="kasir-menu-grid" class="pos-grid" style="max-height: 60vh; overflow-y: auto; padding-right: 5px;"></div></div><div class="col-lg-5 col-md-12"><div class="cart-area d-flex flex-column"><h5 class="fw-bold text-center border-bottom pb-2">KERANJANG MEJA</h5><div class="row g-2 mb-2"><div class="col-6"><input type="text" id="v_meja" class="form-control fw-bold border-primary" placeholder="No Meja"></div><div class="col-6"><input type="text" id="v_nama" class="form-control fw-bold" placeholder="Nama Pelanggan"></div><div class="col-12"><input type="number" id="v_wa" class="form-control border-success" placeholder="No WA Pelanggan (Cari/Input)" list="list-wa" onchange="autoFillNama()" onkeyup="autoFillNama()"><datalist id="list-wa"></datalist></div></div><div id="cart-list" style="max-height: 25vh; overflow-y:auto; margin-bottom:10px;"></div><select id="v_diskon" class="form-control fw-bold mb-2 py-2 text-center text-danger" style="border: 2px solid red;" onchange="hitungTotalKasir()"><option value="0">TIDAK ADA DISKON (0%)</option><option value="5">POTONGAN DISKON 5%</option><option value="10">POTONGAN DISKON 10%</option><option value="15">POTONGAN DISKON 15%</option><option value="20">POTONGAN DISKON 20%</option><option value="25">POTONGAN DISKON 25%</option></select><select id="v_metode" class="form-control fw-bold mb-2 py-2 text-center text-primary" style="font-size:1rem; border: 2px solid blue;"><option value="CASH">CASH (TUNAI)</option><option value="QRIS">QRIS SINKRON</option><option value="TRANSFER">TRANSFER BANK</option><option value="GOFOOD">DELIVERY GOFOOD</option><option value="GRABFOOD">DELIVERY GRABFOOD</option><option value="SHOPEEFOOD">DELIVERY SHOPEE FOOD</option><option value="MAXIMFOOD">DELIVERY MAXIM FOOD</option></select><div class="bg-dark text-white rounded p-2 mb-2"><div class="d-flex justify-content-between" style="font-size:0.8rem;"><span>Subtotal Murni:</span><span id="ui_subtotal">Rp 0</span></div><div class="d-flex justify-content-between text-warning" style="font-size:0.8rem;"><span>Diskon Toko:</span><span id="ui_diskon">-Rp 0</span></div><div class="d-flex justify-content-between text-info border-bottom pb-1 mb-1" style="font-size:0.8rem;"><span>Pajak PB1 & Service (10%):</span><span id="ui_pajak">+Rp 0</span></div><div class="text-center mt-1" style="font-size:0.8rem; letter-spacing:1px;">TOTAL AKHIR BILL</div><div id="v_total" class="fw-bold text-warning fs-3 text-center">Rp 0</div></div><button class="btn btn-secondary w-100 py-2 mb-2 fw-bold shadow-sm" onclick="simpanHoldBill()"><i class="fas fa-pause-circle me-2"></i>SIMPAN SEMENTARA (HOLD BILL)</button><button id="btn-bayar-utama" class="btn btn-success w-100 py-3 fw-bold fs-5 shadow" onclick="checkoutOrder(event)"><i class="fas fa-check-circle me-2"></i>BAYAR & CETAK NOTA</button></div></div></div>';
   document.getElementById('app-content').innerHTML = html; filterMenuKasir('SEMUA', document.querySelector('.btn-tab.active'));
 }
 
@@ -348,20 +354,13 @@ function hitungTotalKasir() {
   document.getElementById('v_total').dataset.val = grandTotal; document.getElementById('v_total').dataset.disc = discPersen; document.getElementById('v_total').dataset.discRp = discRupiah; document.getElementById('v_total').dataset.pajak = pajakRp;
 }
 
-// PERBAIKAN: KODE ANTI-DOBEL KLIK YANG BISA MERESET KEMBALI
-async function checkoutOrder() {
-  var mj = document.getElementById('v_meja').value; 
-  var nm = document.getElementById('v_nama').value; 
-  var wa = document.getElementById('v_wa').value;
-  var mt = document.getElementById('v_metode').value; 
-  var grandTotal = Number(document.getElementById('v_total').dataset.val) || 0;
-  var diskonPersen = Number(document.getElementById('v_total').dataset.disc) || 0; 
-  var diskonRp = Number(document.getElementById('v_total').dataset.discRp) || 0; 
-  var pajakRp = Number(document.getElementById('v_total').dataset.pajak) || 0;
+async function checkoutOrder(event) {
+  var mj = document.getElementById('v_meja').value; var nm = document.getElementById('v_nama').value; var wa = document.getElementById('v_wa').value;
+  var mt = document.getElementById('v_metode').value; var grandTotal = Number(document.getElementById('v_total').dataset.val) || 0;
+  var diskonPersen = Number(document.getElementById('v_total').dataset.disc) || 0; var diskonRp = Number(document.getElementById('v_total').dataset.discRp) || 0; var pajakRp = Number(document.getElementById('v_total').dataset.pajak) || 0;
   
   if(cart.length===0 || !mj || !nm) return Swal.fire('Gagal', 'Lengkapi Nomor Meja dan Nama Pelanggan!', 'warning');
   
-  // 1. KUNCI TOMBOL SAAT PROSES
   var btn = document.getElementById('btn-bayar-utama');
   if (btn) {
       btn.disabled = true;
@@ -369,23 +368,16 @@ async function checkoutOrder() {
   }
 
   Swal.fire({ title: 'Menyimpan & Mencetak...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-  
   var finalCart = cart.map(c => { return { sku: c.sku, nama: c.note ? c.nama + ' (' + c.note.toUpperCase() + ')' : c.nama, kategori: c.kategori, qty: c.qty, harga: c.harga, subtotal: c.subtotal }; });
-  
   var res = await requestAPI("simpanPesanan", { meja: mj, nama: nm, wa: wa, metode: mt, grandTotal: grandTotal, kasir: sessionInfo.nama, cart: finalCart, discPct: diskonPersen, discRp: diskonRp, taxRp: pajakRp });
   Swal.close();
   
-  // 2. BUKA KUNCI TOMBOL SETELAH PROSES SELESAI
   if (btn) {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>BAYAR & CETAK NOTA';
   }
 
-  if(res.status === 'success') { 
-      tampilkanOpsiSelesai(res.idOrder, mj, nm, res.tgl, res.wkt, mt, grandTotal, sessionInfo.nama, finalCart, wa, diskonPersen, diskonRp, pajakRp); 
-  } else { 
-      Swal.fire('Error Database', res.msg, 'error'); 
-  }
+  if(res.status === 'success') { tampilkanOpsiSelesai(res.idOrder, mj, nm, res.tgl, res.wkt, mt, grandTotal, sessionInfo.nama, finalCart, wa, diskonPersen, discRp, pajakRp); } else { Swal.fire('Error Database', res.msg, 'error'); }
 }
 
 function tampilkanOpsiSelesai(idOrd, mj, nm, tgl, wkt, mt, tt, kasir, cartArr, waNum, discPct, discRp, pajakRp) {
@@ -399,7 +391,7 @@ function tampilkanOpsiSelesai(idOrd, mj, nm, tgl, wkt, mt, tt, kasir, cartArr, w
     else if (result.isDenied) {
       if(waNum) {
         var fixWa = waNum.startsWith('0') ? '62' + waNum.substring(1) : waNum;
-        var teksWa = "Halo " + nm + ",\nTerima kasih atas kunjungannya di SANSTECH.\n\nID Order: " + idOrd + "\nNo Meja: " + mj + "\nTotal Pembayaran: " + toRp(tt);
+        var teksWa = "Halo " + nm + ",\nTerima kasih atas kunjungannya di CL FAMILI_ER Pemancingan & Resto.\n\nID Order: " + idOrd + "\nNo Meja: " + mj + "\nTotal Pembayaran: " + toRp(tt);
         window.open('https://wa.me/' + fixWa + '?text=' + encodeURIComponent(teksWa), '_blank');
       } else { alert("Nomor WA tidak diisi."); }
       setTimeout(function() { tampilkanOpsiSelesai(idOrd, mj, nm, tgl, wkt, mt, tt, kasir, cartArr, waNum, discPct, discRp, pajakRp); }, 1000);
@@ -411,50 +403,53 @@ function tampilkanOpsiSelesai(idOrd, mj, nm, tgl, wkt, mt, tt, kasir, cartArr, w
 }
 
 /* ==================================================================== */
-/* LOGIKA CETAK 3-IN-1 (CUSTOMER, BAR, DAPUR) AMAN ANTI-POTONG          */
+/* LOGIKA CETAK 3-IN-1 (CUSTOMER, BAR, DAPUR) DENGAN JEDA ANTI-ERROR    */
 /* ==================================================================== */
 async function cetakNota(idOrd, meja, nama, tgl, wkt, metode, totalFinal, kasir, itemArr, discPct, discRp, pajakRp) {
   var subtotalAwal = 0;
   
-  // PEMISAHAN KATEGORI ITEM
   var itemMinuman = itemArr.filter(c => c.kategori === 'MINUMAN');
   var itemMakanan = itemArr.filter(c => c.kategori === 'MAKANAN');
 
   // JIKA NATIVE BLUETOOTH JALAN
   if(btCharacteristic != null) {
-    // 1. Kertas Customer
-    var rawText = "SANSTECH\nWARMINDO\nOrder: " + idOrd + "\n--------------------------------\n";
-    rawText += "Tgl : " + tgl + " " + wkt + "\nMeja: " + meja + " - " + nama + "\nKsr : " + kasir + "\n--------------------------------\n";
-    itemArr.forEach(c => { subtotalAwal += c.subtotal; rawText += c.nama + "\n" + c.qty + " x " + c.harga.toLocaleString('id-ID') + " = " + c.subtotal.toLocaleString('id-ID') + "\n"; });
-    rawText += "--------------------------------\nSubtotal   : " + subtotalAwal.toLocaleString('id-ID') + "\n";
-    if(discPct > 0) rawText += "Diskon " + discPct + "% : -" + discRp.toLocaleString('id-ID') + "\n";
-    rawText += "Tax & Serv : +" + pajakRp.toLocaleString('id-ID') + "\n--------------------------------\nTOTAL BILL : " + totalFinal.toLocaleString('id-ID') + "\n--------------------------------\nTerima Kasih Atas Kunjungan Anda\n\n";
-
-    // 2. Kertas Bar (Jika ada minuman)
-    if(itemMinuman.length > 0) {
-        rawText += "--------------------------------\n--- POTONG DI SINI (BAR) ---\n--------------------------------\n";
-        rawText += "TIKET BAR (MINUMAN)\nOrder: " + idOrd + "\nMeja: " + meja + " - " + nama + "\nWaktu: " + wkt + "\n--------------------------------\n";
-        itemMinuman.forEach(c => { rawText += c.qty + "x " + c.nama + "\n"; });
-        rawText += "\n\n";
-    }
-
-    // 3. Kertas Dapur (Jika ada makanan)
-    if(itemMakanan.length > 0) {
-        rawText += "--------------------------------\n--- POTONG DI SINI (DAPUR) ---\n--------------------------------\n";
-        rawText += "TIKET DAPUR (MAKANAN)\nOrder: " + idOrd + "\nMeja: " + meja + " - " + nama + "\nWaktu: " + wkt + "\n--------------------------------\n";
-        itemMakanan.forEach(c => { rawText += c.qty + "x " + c.nama + "\n"; });
-        rawText += "\n\n";
-    }
-
-    // KIRIM KE PRINTER DENGAN JEDA NAPAS 1 DETIK
-    await cetakNativeText(rawText);
-    await new Promise(resolve => setTimeout(resolve, 1000)); 
+    // 1. CETAK NOTA CUSTOMER UTAMA
+    var rawCust = "CL FAMILI_ER\nPEMANCINGAN, CAFE & RESTO\nOrder: " + idOrd + "\n--------------------------------\n";
+    rawCust += "Tgl : " + tgl + " " + wkt + "\nMeja: " + meja + " - " + nama + "\nKsr : " + kasir + "\n--------------------------------\n";
+    itemArr.forEach(c => { subtotalAwal += c.subtotal; rawCust += c.nama + "\n" + c.qty + " x " + c.harga.toLocaleString('id-ID') + " = " + c.subtotal.toLocaleString('id-ID') + "\n"; });
+    rawCust += "--------------------------------\nSubtotal   : " + subtotalAwal.toLocaleString('id-ID') + "\n";
+    if(discPct > 0) rawCust += "Diskon " + discPct + "% : -" + discRp.toLocaleString('id-ID') + "\n";
+    rawCust += "Tax & Serv : +" + pajakRp.toLocaleString('id-ID') + "\n--------------------------------\nTOTAL BILL : " + totalFinal.toLocaleString('id-ID') + "\n--------------------------------\nTerima Kasih Atas Kunjungan Anda\n\n";
     
+    await cetakNativeText(rawCust);
+    await new Promise(resolve => setTimeout(resolve, 1500)); // JEDA 1.5 DETIK BIAR PRINTER NAFAS
+
+    // 2. CETAK TIKET BAR
+    if(itemMinuman.length > 0) {
+        var rawBar = "--------------------------------\n✂️ TIKET BAR (MINUMAN) ✂️\n--------------------------------\n";
+        rawBar += "Order: " + idOrd + "\nMeja: " + meja + " - " + nama + "\nWaktu: " + wkt + "\n--------------------------------\n";
+        itemMinuman.forEach(c => { rawBar += c.qty + "x " + c.nama + "\n"; });
+        rawBar += "\n\n";
+        
+        await cetakNativeText(rawBar);
+        await new Promise(resolve => setTimeout(resolve, 1500)); // JEDA 1.5 DETIK
+    }
+
+    // 3. CETAK TIKET DAPUR
+    if(itemMakanan.length > 0) {
+        var rawDap = "--------------------------------\n✂️ TIKET DAPUR (MAKANAN) ✂️\n--------------------------------\n";
+        rawDap += "Order: " + idOrd + "\nMeja: " + meja + " - " + nama + "\nWaktu: " + wkt + "\n--------------------------------\n";
+        itemMakanan.forEach(c => { rawDap += c.qty + "x " + c.nama + "\n"; });
+        rawDap += "\n\n";
+        
+        await cetakNativeText(rawDap);
+    }
+
     return; // STOP DI SINI
   }
 
-  // JIKA PAKAI HTML PRINT / BROWSER (UNTUK PC/LAPTOP)
-  var htmlUtama = '<div class="text-center fw-bold" style="font-size:15px;">SANSTECH</div><div class="text-center" style="font-size:9px;">PEMANCINGAN, CAFE & RESTO</div><div class="text-center" style="font-size:8px;">Jl. Gatot Subroto No.1 Keturen, Tegal</div><div class="text-center">Order: '+idOrd+'</div><div class="dashed-line"></div><div>Tgl : '+tgl+' '+wkt+'</div><div>Meja: '+meja+' - '+nama+'</div><div>Ksr : '+kasir+' ('+metode+')</div><div class="dashed-line"></div>';
+  // JIKA PAKAI HTML PRINT / BROWSER
+  var htmlUtama = '<div class="text-center fw-bold" style="font-size:15px;">CL FAMILI_ER</div><div class="text-center" style="font-size:9px;">PEMANCINGAN, CAFE & RESTO</div><div class="text-center" style="font-size:8px;">Jl. Gatot Subroto No.1 Keturen, Tegal</div><div class="text-center">Order: '+idOrd+'</div><div class="dashed-line"></div><div>Tgl : '+tgl+' '+wkt+'</div><div>Meja: '+meja+' - '+nama+'</div><div>Ksr : '+kasir+' ('+metode+')</div><div class="dashed-line"></div>';
   itemArr.forEach(c => { subtotalAwal += c.subtotal; htmlUtama += '<div>'+c.nama+'</div><div style="display:flex; justify-content:space-between;"><span>'+c.qty+' x '+c.harga.toLocaleString('id-ID')+'</span><span>'+c.subtotal.toLocaleString('id-ID')+'</span></div>'; });
   htmlUtama += '<div class="dashed-line"></div><div style="display:flex; justify-content:space-between;"><span>Subtotal Murni</span><span>'+subtotalAwal.toLocaleString('id-ID')+'</span></div>';
   if(discPct > 0) htmlUtama += '<div style="display:flex; justify-content:space-between; color:black;"><span>Diskon Toko ('+discPct+'%)</span><span>-'+discRp.toLocaleString('id-ID')+'</span></div>';
@@ -479,15 +474,14 @@ async function cetakNota(idOrd, meja, nama, tgl, wkt, metode, totalFinal, kasir,
 }
 
 /* ==================================================================== */
-/* LAYAR DASHBOARD SUPERADMIN DENGAN RINCIAN METODE PEMBAYARAN          */
+/* LAYAR DASHBOARD SUPERADMIN                                           */
 /* ==================================================================== */
 function loadLayarAdmin() {
   document.getElementById('app-content').innerHTML = `
     <h3 class="fw-bold text-primary mb-3"><i class="fas fa-chart-line me-2"></i>LAPORAN AKUNTANSI LACI</h3>
     <div class="card shadow-sm border-0 mb-3 bg-white"><div class="card-body p-3"><div class="d-flex gap-2 mb-3"><button id="btn-mode-harian" class="btn btn-primary flex-fill fw-bold" onclick="setModeLap('HARIAN')">HARIAN</button><button id="btn-mode-bulanan" class="btn btn-outline-primary flex-fill fw-bold" onclick="setModeLap('BULANAN')">BULANAN</button></div><div id="filter-harian" class="row g-2"><div class="col-8"><input type="date" id="v_tgl_lap" class="form-control form-control-lg border-primary"></div><div class="col-4"><button class="btn btn-success w-100 h-100 fw-bold" onclick="tarikLaporan('HARIAN')"><i class="fas fa-search"></i> CEK</button></div></div><div id="filter-bulanan" class="row g-2" style="display:none;"><div class="col-4"><select id="v_bln_lap" class="form-control form-control-lg border-primary"><option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option><option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option><option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option></select></div><div class="col-4"><select id="v_thn_lap" class="form-control form-control-lg border-primary"><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select></div><div class="col-4"><button class="btn btn-success w-100 h-100 fw-bold" onclick="tarikLaporan('BULANAN')"><i class="fas fa-search"></i> CEK</button></div></div></div></div>
-    
     <div class="d-flex justify-content-between mb-2"><span class="badge bg-dark w-100 me-1 py-2">ALL QTY: <span id="ui-tot-qty">0</span></span><span class="badge bg-danger w-100 me-1 py-2">MAK: <span id="ui-qty-mak">0</span></span><span class="badge bg-info w-100 py-2">MIN: <span id="ui-qty-min">0</span></span></div>
-    <div class="row g-2 mb-3 text-center"><div class="col-4"><div class="bg-dark text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">OMSET KOTOR</div><div id="ui-omset-kotor" class="fs-6 fw-bold mt-1">Rp 0</div></div></div><div class="col-4"><div class="bg-danger text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">KOTOR MAKANAN</div><div id="ui-rp-mak" class="fs-6 fw-bold mt-1">Rp 0</div></div></div><div class="col-4"><div class="bg-info text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">KOTOR MINUMAN</div><div id="ui-rp-min" class="fs-6 fw-bold mt-1">Rp 0</div></div></div><div class="col-4"><div class="bg-secondary text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">TOTAL DISKON</div><div id="ui-tot-disc" class="fs-6 fw-bold text-warning mt-1">-Rp 0</div></div></div><div class="col-4"><div class="bg-secondary text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">PAJAK PB1 (10%)</div><div id="ui-tot-tax" class="fs-6 fw-bold text-info mt-1">+Rp 0</div></div></div><div class="col-4"><div class="bg-success text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; font-weight:bold;">TOTAL PENDAPATAN</div><div id="ui-tot-rp" class="fs-6 fw-bold text-warning mt-1">Rp 0</div></div></div></div>
+    <div class="row g-2 mb-3 text-center"><div class="col-4"><div class="bg-dark text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">OMSET KOTOR</div><div id="ui-omset-kotor" class="fs-6 fw-bold mt-1">Rp 0</div></div></div><div class="col-4"><div class="bg-danger text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">KOTOR MAKANAN</div><div id="ui-rp-mak" class="fs-6 fw-bold mt-1">Rp 0</div></div></div><div class="col-4"><div class="bg-info text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">KOTOR MINUMAN</div><div id="ui-rp-min" class="fs-6 fw-bold mt-1">Rp 0</div></div></div><div class="col-4"><div class="bg-secondary text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">TOTAL DISKON</div><div id="ui-tot-disc" class="fs-6 fw-bold text-warning mt-1">-Rp 0</div></div></div><div class="col-4"><div class="bg-secondary text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; opacity:0.8;">PAJAK PB1 (10%)</div><div id="ui-tot-tax" class="fs-6 fw-bold text-info mt-1">+Rp 0</div></div></div><div class="col-4"><div class="bg-success text-white p-2 rounded shadow-sm"><div style="font-size:0.65rem; font-weight:bold;">UANG LACI (BERSIH)</div><div id="ui-tot-rp" class="fs-6 fw-bold text-warning mt-1">Rp 0</div></div></div></div>
     
     <h6 class="fw-bold m-0 mb-2 mt-4"><i class="fas fa-wallet text-success me-2"></i>Rincian Metode Pembayaran</h6>
     <div class="row g-2 mb-4 text-center">
@@ -551,13 +545,13 @@ async function cariRiwayatAdmin() {
       var h = ''; if(res.data.length === 0) h = '<div class="alert alert-warning text-center">Tidak ada transaksi ditemukan.</div>';
       res.data.forEach(function(d) {
          var strItems = JSON.stringify(d.items).replace(/"/g, '&quot;');
-         h += '<div class="card mb-2 border-primary"><div class="card-body py-2 px-3"><div class="d-flex justify-content-between"><b>'+d.idOrder+'</b><span class="text-muted">'+d.tgl+' '+d.wkt+'</span></div><div style="font-size:0.9rem;">Meja: '+d.meja+' ('+d.nama+')<br>Total Laci: <b>'+toRp(d.total)+'</b></div><button class="btn btn-sm btn-outline-success w-100 mt-2 fw-bold" onclick="cetakNota(\''+d.idOrder+'\',\''+d.meja+'\',\''+d.nama+'\',\''+d.tgl+'\',\''+d.wkt+'\',\''+d.metode+'\','+d.total+',\''+d.kasir+'\', '+strItems+', '+d.discPct+', '+d.discRp+', '+d.taxRp+')"><i class="fas fa-print"></i> Re-Print Nota Kasir</button></div></div>';
+         // PERBAIKAN: Menambahkan label "Transaksi via: [Metode]" di bawah Total Laci
+         h += '<div class="card mb-2 border-primary"><div class="card-body py-2 px-3"><div class="d-flex justify-content-between"><b>'+d.idOrder+'</b><span class="text-muted">'+d.tgl+' '+d.wkt+'</span></div><div style="font-size:0.9rem;">Meja: '+d.meja+' ('+d.nama+')<br>Total Laci: <b>'+toRp(d.total)+'</b><br><span class="badge bg-info text-dark mt-1">Transaksi via: '+d.metode+'</span></div><button class="btn btn-sm btn-outline-success w-100 mt-2 fw-bold" onclick="cetakNota(\''+d.idOrder+'\',\''+d.meja+'\',\''+d.nama+'\',\''+d.tgl+'\',\''+d.wkt+'\',\''+d.metode+'\','+d.total+',\''+d.kasir+'\', '+strItems+', '+d.discPct+', '+d.discRp+', '+d.taxRp+')"><i class="fas fa-print"></i> Re-Print Nota Kasir</button></div></div>';
       });
       document.getElementById('area-riwayat-admin').innerHTML = h;
    }
 }
 
-// PERBAIKAN CSV AGAR RAMAH EXCEL INDONESIA (TITIK KOMA)
 function downloadCSV() {
    var rows = document.querySelectorAll('#tbl-laporan tr'); if(rows.length === 1 && rows[0].innerText.includes('Pilih parameter')) return alert('Data kosong!');
    var csv = "NAMA MENU;KATEGORI;QTY;TOTAL_RUPIAH_KOTOR\n";
