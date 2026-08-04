@@ -1,7 +1,7 @@
 {
-  "name": "SANSTECH CLOUD POS",
-  "short_name": "SANSTECH",
-  "description": "Sistem Aplikasi Kasir SANSTECH",
+  "name": "CL FAMILI_ER CLOUD POS",
+  "short_name": "CL Famili_er",
+  "description": "Sistem Aplikasi Kasir & KDS Pemancingan & Resto CL Famili_er Tegal",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1E293B",
@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "./logo1.png",
+      "src": "./logo.png",
       "sizes": "512x512",
       "type": "image/png"
     }
